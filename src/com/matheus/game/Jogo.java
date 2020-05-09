@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +19,7 @@ import javax.swing.JFrame;
 import com.matheus.entidades.*;
 import com.matheus.graficos.Spritesheet;
 import com.matheus.graficos.UI;
+import com.matheus.mundo.GerarCanos;
 
 public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener {
 
@@ -30,13 +30,14 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 	private Thread thread;
 	private boolean isRunning;
 	public static JFrame frame;
-	public static final int WIDITH = 300, HEIGHT = 220, SCALE = 3;
+	public static final int WIDITH = 300, HEIGHT = 160, SCALE = 3;
 	private BufferedImage background;
 	public static List<Entidade> entidades;
 	public static Spritesheet spritesheet;
 	public static Jogador jogador;
 	public static Random rand;
 	public static boolean mute = true;
+	public static GerarCanos geradorDeCanos;
 	public UI ui;
 	public int[] pixels, luzPixels;
 	
@@ -57,7 +58,6 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 
 		
 
-		pixels = ((DataBufferInt) background.getRaster().getDataBuffer()).getData();
 		iniciarJogo();
 		
 	}
@@ -70,6 +70,7 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 
 	public static void iniciarJogo() {
 
+		geradorDeCanos=new GerarCanos();
 		entidades = new ArrayList<Entidade>();
 		spritesheet = new Spritesheet("/Spritesheet.png");
 		jogador = new Jogador(0, 0, 16, 16, null,2);
@@ -97,6 +98,7 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 				}
 
 			ui.atualizar();
+			geradorDeCanos.atualizar();
 			
 	}
 
@@ -144,7 +146,7 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 		double ns = 1000000000 / amountOfTicks;// "constante" do momento certo do update do jogo para ficar na
 												// quantidade de fps descritas no amountOfTicks
 		double delta = 0;
-		int frames = 0;
+		
 		double timer = System.currentTimeMillis();
 		while (isRunning) {
 			long now = System.nanoTime();// tempo atual
@@ -154,13 +156,12 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 			if (delta >= 1) {
 				atualizar();
 				renderizar();
-				frames++;
+				
 				delta--;
 			}
 
 			if (System.currentTimeMillis() - timer >= 1000) {
-				System.out.println("frames"+ frames);
-				frames = 0;
+				
 				timer = System.currentTimeMillis();// atualiza o tempo para o tempo atual
 				// ou timer+=1000; para dizer que se passaram 1000 milesegundos desde o valor
 				// inicial do timer
@@ -190,12 +191,16 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			jogador.apertandoTecla=true;
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			jogador.apertandoTecla=false;
+		}
 	}
 
 	@Override
