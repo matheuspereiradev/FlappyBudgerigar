@@ -3,6 +3,7 @@ package com.matheus.game;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import java.awt.event.KeyEvent;
@@ -20,6 +21,7 @@ import com.matheus.entidades.*;
 import com.matheus.graficos.Spritesheet;
 import com.matheus.graficos.UI;
 import com.matheus.mundo.GerarCanos;
+import com.matheus.mundo.Mundo;
 
 public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener {
 
@@ -39,8 +41,8 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 	public static boolean mute = true;
 	public static GerarCanos geradorDeCanos;
 	public UI ui;
-	public int[] pixels, luzPixels;
-	
+	public static int statusJogo;
+	public static int gameover=0,jogando=1, inicio=2;
 	public static int pontuacao;
 	
 	
@@ -73,10 +75,9 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 		geradorDeCanos=new GerarCanos();
 		entidades = new ArrayList<Entidade>();
 		spritesheet = new Spritesheet("/Spritesheet.png");
-		jogador = new Jogador(0, 0, 16, 16, null,2);
+		jogador = new Jogador(WIDITH/2, HEIGHT/2, 16, 16, null,2);
 		entidades.add(jogador);
-		jogador.setX(WIDITH/2);
-		jogador.setY(HEIGHT/2);
+		statusJogo=inicio;
 	}
 
 	public void iniciarFrame() {
@@ -92,13 +93,16 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 
 	public void atualizar() {
 	
-				for (int i = 0; i < entidades.size(); i++) {
-					Entidade e = entidades.get(i);
-					e.atualizar();
-				}
-
-			ui.atualizar();
+		if(statusJogo==jogando) {
+			for (int i = 0; i < entidades.size(); i++) {
+				Entidade e = entidades.get(i);
+				e.atualizar();
+			}
 			geradorDeCanos.atualizar();
+		}		
+				
+			ui.atualizar();
+			
 			
 	}
 
@@ -122,7 +126,6 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 			e.renderizar(g);
 		}
 
-		ui.renderizar(g);
 
 		g.dispose();// limpar dados da imagem que nao foram usados
 		g = bs.getDrawGraphics();
@@ -133,6 +136,18 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 			// TELA COMUM
 		
 		// aqui para ficar em cima da imagem de background
+		
+		if(statusJogo==gameover) {
+			g.setColor(Color.red);
+			g.setFont(new Font("arial",Font.BOLD,30));
+			g.drawString("Perdeu aperte space", 12, 50);
+		}else if(statusJogo==inicio) {
+			g.setColor(Color.red);
+			g.setFont(new Font("arial",Font.BOLD,30));
+			g.drawString("aperte space", 12, 50);
+		}
+
+		ui.renderizar(g);
 		
 		bs.show();
 	}
@@ -192,14 +207,23 @@ public class Jogo extends Canvas implements Runnable, KeyListener, MouseListener
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			jogador.apertandoTecla=true;
+			if(statusJogo==jogando) {
+				jogador.apertandoTecla=true;
+			} else if (statusJogo==inicio){
+				statusJogo=jogando;
+			} else {
+				Mundo.carregarFase();
+			}
+				
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			jogador.apertandoTecla=false;
+			if(statusJogo==jogando) {
+				jogador.apertandoTecla=false;
+			}
 		}
 	}
 

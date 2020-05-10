@@ -84,18 +84,16 @@ public class Mundo {
 				|| (tiles[x4 + y4 * Mundo.WIDTH_WORD] instanceof WallTile));
 	}
 
-	public static void carregarFase(int level) {
-		if (!Jogo.mute)
-			Sons.proxFase.play();
-
+	public static void carregarFase() {
+		Jogo.pontuacao=0;
 		Jogo.entidades.clear();
 
 		Jogo.entidades = new ArrayList<Entidade>();
 
 		Jogo.spritesheet = new Spritesheet("/Spritesheet.png");
-		Jogo.jogador = new Jogador(35, 29, Jogo.tamanho, Jogo.tamanho,
-				Jogo.spritesheet.getSprite(0, 0, Jogo.tamanho, Jogo.tamanho), 1);
+		Jogo.jogador = new Jogador(Jogo.WIDITH/2, Jogo.HEIGHT/2, 16, 16, null,2);
 		Jogo.entidades.add(Jogo.jogador);
+		Jogo.statusJogo=Jogo.jogando;
 	}
 
 	public void renderizar(Graphics g) {
